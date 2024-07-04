@@ -1,0 +1,20 @@
+{
+  "name": "iawave/fwd-mailer",
+  "version": "1.0.0",
+  "type": "project",
+  "homepage": "https://www.idtecnology.com/#mensajeria",
+  "readme": "./README.md",
+  "license": "MIT",
+  "require": {
+    "phpmailer/phpmailer": "^6.9",
+    "vlucas/phpdotenv": "^5.6",
+    "monolog/monolog": "^3.7"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "scripts": {
+    "post-install-cmd": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ]
+  }
+}
