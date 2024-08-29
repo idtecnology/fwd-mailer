@@ -82,14 +82,14 @@ if ($emails) {
             $mail->addReplyTo($matches[1], trim($parts[0]));
             $mail->Subject = 'Fwd: ' . $overview[0]->subject;
             $mail->Body = quoted_printable_decode($messagePlain);
-            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Enviado:  $forwardTo[$r] \n");
+            fwrite($logFile, "[" . date('Y-m-d H:i:s') . "] - Enviado:  $forwardTo[$r] \n");
             fclose($handle);
-            // $mail->send();
+            $mail->send();
         } catch (Exception $e) {
-            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Error message:  $mail->ErrorInfo \n");
+            fwrite($logFile, "[" . date('Y-m-d H:i:s') . "] - Error message:  $mail->ErrorInfo \n");
             fclose($handle);
 
-            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Error enviado a:  $forwardTo[$r] \n");
+            fwrite($logFile, "[" . date('Y-m-d H:i:s') . "] - Error enviado a:  $forwardTo[$r] \n");
             fclose($handle);
         }
 
@@ -106,15 +106,15 @@ if ($emails) {
             $stmt->rowCount() > 0
         ) {
 
-            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Guardado:  $forwardTo[$r] \n");
+            fwrite($logFile, "[" . date('Y-m-d H:i:s') . "] - Guardado:  $forwardTo[$r] \n");
             fclose($handle);
         } else {
-            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Error inserting new record \n");
+            fwrite($logFile, "[" . date('Y-m-d H:i:s') . "] - Error inserting new record \n");
             fclose($handle);
         }
     }
 } else {
-    fwrite($handle, date('Y-m-d H:i:s') . ' - '  . "Enviado:  $forwardTo[$r] \n");
+    fwrite($handle, "[" . date('Y-m-d H:i:s') . "] - No hay correos \n");
     fclose($handle);
 }
 
