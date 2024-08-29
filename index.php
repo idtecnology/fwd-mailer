@@ -5,32 +5,36 @@ $dotenv->load();
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
 
-$dsn = "mysql:host={$_ENV['BD_HOST']};dbname={$_ENV['BD_NAME']}";
-$usuario = $_ENV['BD_USERNAME'];
-$contraseña = $_ENV['DB_PASSWORD'];
 
-try {
-    $conexion = new PDO($dsn, $usuario, $contraseña);
-    $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    echo 'Error de conexión: ' . $e->getMessage();
-}
 
-$stmt = $conexion->prepare('SELECT * FROM ejecutivos_email');
-$stmt->execute();
-$rst = $stmt->fetchAll();
+
+
+
+// $dsn = "mysql:host={$_ENV['BD_HOST']};dbname={$_ENV['BD_NAME']}";
+// $usuario = $_ENV['BD_USERNAME'];
+// $contraseña = $_ENV['DB_PASSWORD'];
+
+// try {
+//     $conexion = new PDO($dsn, $usuario, $contraseña);
+//     $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// } catch (PDOException $e) {
+//     echo 'Error de conexión: ' . $e->getMessage();
+// }
+
+// $stmt = $conexion->prepare('SELECT * FROM ejecutivos_email');
+// $stmt->execute();
+// $rst = $stmt->fetchAll();
+
 
 
 
 $forwardTo = [];
-foreach ($rst as $key => $datos) {
-    if ($datos['active'] == 1) {
-        $forwardTo[$key] = $datos['email'];
-    }
-}
+// foreach ($rst as $key => $datos) {
+//     if ($datos['active'] == 1) {
+//         $forwardTo[$key] = $datos['email'];
+//     }
+// }
 
 $date = date('Y-m-d');
 
@@ -39,8 +43,8 @@ if (!is_dir('./logs/' . $date)) {
 }
 
 $logFile = __DIR__ . '/logs/' . $date . '/correos_' . $date . '.log';
-$logger = new Logger('fwd-mailer');
-$logger->pushHandler(new StreamHandler($logFile, Logger::INFO));
+$handle = fopen($logFile, 'a'); // Abre en modo append
+
 
 $hostname = $_ENV['EMAIL_HOST'];
 $username = $_ENV['EMAIL_USERNAME'];
@@ -78,11 +82,15 @@ if ($emails) {
             $mail->addReplyTo($matches[1], trim($parts[0]));
             $mail->Subject = 'Fwd: ' . $overview[0]->subject;
             $mail->Body = quoted_printable_decode($messagePlain);
-            $logger->info('Enviado a: ' . $forwardTo[$r]);
-            $mail->send();
+            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Enviado:  $forwardTo[$r] \n");
+            fclose($handle);
+            // $mail->send();
         } catch (Exception $e) {
-            $logger->info('Error enviado a: ' . $forwardTo[$r]);
-            $logger->info('Error message: ' . $mail->ErrorInfo);
+            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Error message:  $mail->ErrorInfo \n");
+            fclose($handle);
+
+            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Error enviado a:  $forwardTo[$r] \n");
+            fclose($handle);
         }
 
         $stmt = $conexion->prepare("INSERT INTO derivacion_email (email_from, email_to, fecha) VALUES (?, ?, ?)");
@@ -98,13 +106,16 @@ if ($emails) {
             $stmt->rowCount() > 0
         ) {
 
-            $logger->info('Guardado: ' . $forwardTo[$r]);
+            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Guardado:  $forwardTo[$r] \n");
+            fclose($handle);
         } else {
-            $logger->info("Error inserting new record");
+            fwrite($logFile, date('Y-m-d H:i:s') . ' - '  . "Error inserting new record \n");
+            fclose($handle);
         }
     }
 } else {
-    $logger->info("No hay correos no leídos.\n");
+    fwrite($handle, date('Y-m-d H:i:s') . ' - '  . "Enviado:  $forwardTo[$r] \n");
+    fclose($handle);
 }
 
 imap_close($inbox);
