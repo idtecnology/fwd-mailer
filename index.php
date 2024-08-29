@@ -11,30 +11,30 @@ use PHPMailer\PHPMailer\Exception;
 
 
 
-// $dsn = "mysql:host={$_ENV['BD_HOST']};dbname={$_ENV['BD_NAME']}";
-// $usuario = $_ENV['BD_USERNAME'];
-// $contraseña = $_ENV['DB_PASSWORD'];
+$dsn = "mysql:host={$_ENV['BD_HOST']};dbname={$_ENV['BD_NAME']}";
+$usuario = $_ENV['BD_USERNAME'];
+$contraseña = $_ENV['DB_PASSWORD'];
 
-// try {
-//     $conexion = new PDO($dsn, $usuario, $contraseña);
-//     $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-// } catch (PDOException $e) {
-//     echo 'Error de conexión: ' . $e->getMessage();
-// }
+try {
+    $conexion = new PDO($dsn, $usuario, $contraseña);
+    $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo 'Error de conexión: ' . $e->getMessage();
+}
 
-// $stmt = $conexion->prepare('SELECT * FROM ejecutivos_email');
-// $stmt->execute();
-// $rst = $stmt->fetchAll();
+$stmt = $conexion->prepare('SELECT * FROM ejecutivos_email');
+$stmt->execute();
+$rst = $stmt->fetchAll();
 
 
 
 
 $forwardTo = [];
-// foreach ($rst as $key => $datos) {
-//     if ($datos['active'] == 1) {
-//         $forwardTo[$key] = $datos['email'];
-//     }
-// }
+foreach ($rst as $key => $datos) {
+    if ($datos['active'] == 1) {
+        $forwardTo[$key] = $datos['email'];
+    }
+}
 
 $date = date('Y-m-d');
 
